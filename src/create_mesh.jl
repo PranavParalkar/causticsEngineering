@@ -106,15 +106,20 @@ $(SIGNATURES)
 
 This function saves the mesh object in obj format.
 """
-function saveObj!(mesh::Mesh, filename::String; scale=1.0, scalez=1.0, reverse=false, flipxy=false)
-    # This function saves the mesh object in stl format
+function saveObj!(mesh::Mesh, filename::String; scale=1.0, scalez=1.0, reverse=false, flipxy=false, flipy=false)
+    # This function saves the mesh object in obj format
     open(filename, "w") do io
         for vertex in mesh.nodes
+            vx = vertex.x * scale
+            vy = vertex.y * scale
+            vz = vertex.z * scalez
             if flipxy
-                println(io, "v ", vertex.y * scale, " ", vertex.x * scale, " ", vertex.z * scalez)
-            else
-                println(io, "v ", vertex.x * scale, " ", vertex.y * scale, " ", vertex.z * scalez)
+                vx, vy = vy, vx
             end
+            if flipy
+                vy = -vy
+            end
+            println(io, "v ", vx, " ", vy, " ", vz)
         end
   
         for face in mesh.triangles
@@ -456,7 +461,11 @@ function quantifyLoss!(D, suffix, img)
     println(size(green))
 
     rgbImg = RGB.(red, green, blue)'
-    save("./examples/loss_$(suffix).png", map(clamp01nan, rgbImg))
+    try
+        save("./examples/loss_$(suffix).png", map(clamp01nan, rgbImg))
+    catch e
+        @warn "Could not save loss image: $e"
+    end
 end
 
 
@@ -468,8 +477,9 @@ function oneIteration(meshy, img, suffix)
     # `grid_definition x grid_definition`, so LJ is `grid_definition x grid_definition`.
     LJ = getPixelArea(meshy)
     D = Float64.(LJ - img)
-    # Shift D to ensure its sum is zero
-    D .-= sum(D) / (512 * 512)
+    # Shift D to ensure its sum is zero (required for Neumann BC Poisson solver)
+    width, height = size(img)
+    D .-= sum(D) / (width * height)
 
     # Save the loss image as a png
     println(minimum(D))
@@ -859,8 +869,8 @@ function plotAsQuiver(
         flipxy ? quiver(ys, xs, quiver=(vs, us), aspect_ratio=:equal) :
         quiver(xs, ys, quiver=(us, vs), aspect_ratio=:equal)
 
-    display(q)
-    readline()
+    # display(q)
+    # readline()
 end
 
 
@@ -889,8 +899,8 @@ function plotVAsQuiver(vx, vy; stride=4, scale=300, max_length=2)
 
     # readline()
     q = quiver(xs, ys, quiver=(us, vs), aspect_ratio=:equal)
-    display(q)
-    readline()
+    # display(q)
+    # readline()
 end
 
 
@@ -898,10 +908,12 @@ end
 """
 $(SIGNATURES)
 """
-function engineer_caustics(img)
+function engineer_caustics(img; output_path="./examples/original_image.obj", artifact_size=0.1, focal_length=0.2, iterations=4)
     img = Gray.(img)
     img2 = permutedims(img) * 1.0
     width, height = size(img2)
+    println("{\"status\":\"processing\",\"step\":\"init\",\"message\":\"Image loaded: $(width)x$(height)\"}")
+    flush(stdout)
 
     # meshy is the same size as the image
     meshy = squareMesh(width + 1, height + 1)
@@ -915,26 +927,31 @@ function engineer_caustics(img)
     # original image.
     img3 = img2 .* boost_ratio
 
-    oneIteration(meshy, img3, "it1")
-    oneIteration(meshy, img3, "it2")
-    oneIteration(meshy, img3, "it3")
-    oneIteration(meshy, img3, "it4")
-    # oneIteration(meshy, img3, "it5")
-    # oneIteration(meshy, img3, "it6")
+    for i in 1:iterations
+        println("{\"status\":\"processing\",\"step\":\"iteration\",\"current\":$(i),\"total\":$(iterations),\"message\":\"Mesh iteration $(i)/$(iterations)\"}")
+        flush(stdout)
+        oneIteration(meshy, img3, "it$(i)")
+    end
 
-    artifactSize = 0.1  # meters
-    focalLength = 0.2 # meters
-    h, metersPerPixel = findSurface(meshy, img3, focalLength, artifactSize)
+    println("{\"status\":\"processing\",\"step\":\"surface\",\"message\":\"Computing surface heights...\"}")
+    flush(stdout)
+    h, metersPerPixel = findSurface(meshy, img3, focal_length, artifact_size)
 
     setHeights!(meshy, h, 1.0, 10)
 
+    println("{\"status\":\"processing\",\"step\":\"solidify\",\"message\":\"Solidifying mesh...\"}")
+    flush(stdout)
     solidMesh = solidify(meshy)
     saveObj!(
         solidMesh,
-        "./examples/original_image.obj",
-        scale=1 / 512 * artifactSize,
-        scalez=1 / 512.0 * artifactSize,
+        output_path,
+        scale=1 / width * artifact_size,
+        scalez=1 / width * artifact_size,
+        flipy=true,
     )
+
+    println("{\"status\":\"done\",\"step\":\"complete\",\"message\":\"OBJ saved to $(output_path)\"}")
+    flush(stdout)
 
     return meshy, img3
 end
@@ -949,9 +966,3 @@ function main()
     img = load(ARGS[1])
     return engineer_caustics(img)
 end
-
-
-"""
-$(SIGNATURES)
-"""
-main()

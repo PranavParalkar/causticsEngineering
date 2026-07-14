@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Upload any image and generate a 3D caustic mirror surface that projects light into your image. Download as OBJ for CNC or 3D printing.">
+    <title>Caustics Engineering — Image to 3D Caustic Mirror</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated caustic background -->
+    <div class="bg-caustics" aria-hidden="true"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">
+                <span class="dot"></span>
+                Caustics Engine v1.0
+            </div>
+            <h1>Image → Caustic Mirror</h1>
+            <p>Upload an image and generate a 3D surface mesh that projects light into your design. Download the OBJ for CNC milling or 3D printing.</p>
+        </header>
+
+        <!-- Upload -->
+        <section class="upload-section">
+            <div class="glass-card">
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-content">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <p class="upload-title">Drop your image here</p>
+                        <p class="upload-subtitle">or <span>browse files</span> — JPG, PNG, BMP, TIFF up to 50 MB</p>
+                    </div>
+                    <input type="file" id="file-input" class="file-input" accept="image/*">
+                </div>
+
+                <!-- Image Preview -->
+                <div class="preview-container" id="preview-container">
+                    <img class="preview-img" id="preview-img" alt="Uploaded image preview">
+                    <div class="preview-info">
+                        <p class="preview-name" id="preview-name"></p>
+                        <p class="preview-size" id="preview-size"></p>
+                    </div>
+                    <button class="preview-remove" id="preview-remove">Remove</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="settings-section">
+            <div class="glass-card">
+                <button class="settings-toggle" id="settings-toggle">
+                    <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                    Advanced Settings
+                </button>
+                <div class="settings-panel" id="settings-panel">
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="setting-width">Resolution (px)</label>
+                            <input type="number" id="setting-width" value="200" min="50" max="1024" step="50">
+                            <span class="hint">Image will be resized to this width. Higher = slower but finer detail.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-artifact-size">Artifact Size (m)</label>
+                            <input type="number" id="setting-artifact-size" value="0.1" min="0.01" max="1" step="0.01">
+                            <span class="hint">Physical width of the caustic piece in meters.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-focal-length">Focal Length (m)</label>
+                            <input type="number" id="setting-focal-length" value="0.2" min="0.05" max="2" step="0.05">
+                            <span class="hint">Distance from surface to projected image.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-iterations">Iterations</label>
+                            <input type="number" id="setting-iterations" value="4" min="1" max="10" step="1">
+                            <span class="hint">More iterations = better convergence, slower processing.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Generate -->
+        <section class="generate-section">
+            <button class="btn-generate" id="btn-generate" disabled>
+                <span class="btn-text">Generate Caustic Mirror</span>
+                <span class="spinner"></span>
+            </button>
+        </section>
+
+        <!-- Progress -->
+        <section class="progress-section" id="progress-section">
+            <div class="glass-card">
+                <div class="progress-header">
+                    <span class="progress-title">
+                        ⚙️ Processing
+                    </span>
+                    <span class="progress-status" id="progress-status">Running</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+                <div class="log-container" id="log-container"></div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="results-section" id="results-section">
+            <div class="glass-card">
+                <div class="results-header">
+                    <span class="results-title">✨ Your Caustic Mirror</span>
+                    <a class="btn-download" id="btn-download" href="#" download>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download OBJ
+                    </a>
+                </div>
+                <div class="viewer-container" id="viewer-container">
+                    <span class="viewer-hint">Click & drag to rotate · Scroll to zoom</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by <a href="https://mattferraro.dev/posts/caustics-engineering" target="_blank" rel="noopener">Matt Ferraro's Caustics Engineering</a> · Built with Julia</p>
+        </footer>
+    </div>
+
+    <!-- Three.js for 3D preview -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
