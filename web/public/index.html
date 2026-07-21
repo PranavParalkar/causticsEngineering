@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Upload any image and generate a 3D caustic mirror surface that projects light into your image. Download as OBJ for CNC or 3D printing.">
+    <meta name="description"
+        content="Upload any image and generate a 3D caustic mirror surface that projects light into your image. Download as OBJ for CNC or 3D printing.">
     <title>Caustics Engineering — Image to 3D Caustic Mirror</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- Animated caustic background -->
     <div class="bg-caustics" aria-hidden="true"></div>
@@ -19,7 +22,8 @@
                 Caustics Engine v1.0
             </div>
             <h1>Image → Caustic Mirror</h1>
-            <p>Upload an image and generate a 3D surface mesh that projects light into your design. Download the OBJ for CNC milling or 3D printing.</p>
+            <p>Upload an image and generate a 3D surface mesh that projects light into your design. Download the OBJ for
+                CNC milling or 3D printing.</p>
         </header>
 
         <!-- Upload -->
@@ -28,10 +32,11 @@
                 <div class="upload-zone" id="upload-zone">
                     <div class="upload-content">
                         <div class="upload-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
                         </div>
                         <p class="upload-title">Drop your image here</p>
@@ -56,8 +61,9 @@
         <section class="settings-section">
             <div class="glass-card">
                 <button class="settings-toggle" id="settings-toggle">
-                    <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"/>
+                    <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9" />
                     </svg>
                     Advanced Settings
                 </button>
@@ -66,7 +72,8 @@
                         <div class="form-group">
                             <label for="setting-width">Resolution (px)</label>
                             <input type="number" id="setting-width" value="200" min="50" max="1024" step="50">
-                            <span class="hint">Image will be resized to this width. Higher = slower but finer detail.</span>
+                            <span class="hint">Image will be resized to this width. Higher = slower but finer
+                                detail.</span>
                         </div>
                         <div class="form-group">
                             <label for="setting-artifact-size">Artifact Size (m)</label>
@@ -101,7 +108,7 @@
             <div class="glass-card">
                 <div class="progress-header">
                     <span class="progress-title">
-                        ⚙️ Processing
+                        Processing
                     </span>
                     <span class="progress-status" id="progress-status">Running</span>
                 </div>
@@ -116,12 +123,13 @@
         <section class="results-section" id="results-section">
             <div class="glass-card">
                 <div class="results-header">
-                    <span class="results-title">✨ Your Caustic Mirror</span>
+                    <span class="results-title">Your Caustic Mirror</span>
                     <a class="btn-download" id="btn-download" href="#" download>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
                         Download OBJ
                     </a>
@@ -134,7 +142,8 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Powered by <a href="https://mattferraro.dev/posts/caustics-engineering" target="_blank" rel="noopener">Matt Ferraro's Caustics Engineering</a> · Built with Julia</p>
+            <p>Powered by <a href="https://mattferraro.dev/posts/caustics-engineering" target="_blank"
+                    rel="noopener">Matt Ferraro's Caustics Engineering</a> · Built with Julia</p>
         </footer>
     </div>
 
@@ -144,4 +153,5 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
